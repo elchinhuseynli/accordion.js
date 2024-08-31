@@ -281,6 +281,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License.
 
-## Codepen demo
+## Demo
 
-(https://codepen.io/Elin-Huseynli/pen/eYwWWJE)
+https://codepen.io/Elin-Huseynli/pen/eYwWWJE
