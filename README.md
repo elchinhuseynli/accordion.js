@@ -22,6 +22,7 @@
 18. [Troubleshooting](#troubleshooting)
 19. [Contributing](#contributing)
 20. [License](#license)
+21. [Codepen Demo] (#demo)
 
 ## Introduction
 
@@ -279,3 +280,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License.
+
+## Codepen demo
+
+(https://codepen.io/Elin-Huseynli/pen/eYwWWJE)
