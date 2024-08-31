@@ -22,7 +22,7 @@
 18. [Troubleshooting](#troubleshooting)
 19. [Contributing](#contributing)
 20. [License](#license)
-21. [Demo] (#demo)
+21. [Demo](#demo)
 
 ## Introduction
 
