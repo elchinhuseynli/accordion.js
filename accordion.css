@@ -1,0 +1,19 @@
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition-property: max-height, padding, opacity;
+}
+
+.accordion-content.active {
+  max-height: 1000px; /* Adjust this value as needed */
+  opacity: 1;
+}
+
+[fl-accordion-arrow] {
+  transition: transform 0.3s ease;
+}
+
+.accordion-header[aria-expanded="true"] [fl-accordion-arrow] {
+  transform: rotate(180deg);
+}
