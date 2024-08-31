@@ -4,13 +4,9 @@ class Accordion {
     this.config = {
       allowMultipleOpen: false,
       animationDuration: 300,
-      enableAnimation: true,
-      saveState: false,
-      deepLinking: false,
       ...config,
     };
     this.items = this.accordion.querySelectorAll("[fl-accordion-item]");
-    this.accordionId = `accordion-${Math.random().toString(36).substr(2, 9)}`;
     this.init();
   }
 
@@ -19,30 +15,17 @@ class Accordion {
       const header = item.querySelector("[fl-accordion-header]");
       const content = item.querySelector("[fl-accordion-content]");
 
-      const headerId = `${this.accordionId}-header-${index + 1}`;
-      const contentId = `${this.accordionId}-content-${index + 1}`;
-      header.id = headerId;
-      content.id = contentId;
-      header.setAttribute("aria-controls", contentId);
-      content.setAttribute("aria-labelledby", headerId);
+      header.id = `accordion-header-${index}`;
+      content.id = `accordion-content-${index}`;
+      header.setAttribute("aria-controls", content.id);
+      content.setAttribute("aria-labelledby", header.id);
 
       header.addEventListener("click", () => this.toggleItem(item));
       header.addEventListener("keydown", (e) => this.handleKeydown(e, item));
 
-      if (this.config.enableAnimation) {
-        content.style.transition = `max-height ${this.config.animationDuration}ms ease-out, 
-                                    padding ${this.config.animationDuration}ms ease-out, 
-                                    opacity ${this.config.animationDuration}ms ease-out`;
-      }
+      // Set tabindex to make headers focusable
+      header.setAttribute("tabindex", "0");
     });
-
-    if (this.config.deepLinking) {
-      this.handleDeepLinking();
-    }
-
-    if (this.config.saveState) {
-      this.restoreState();
-    }
   }
 
   toggleItem(item) {
@@ -52,9 +35,7 @@ class Accordion {
 
     if (!this.config.allowMultipleOpen) {
       this.items.forEach((otherItem) => {
-        if (otherItem !== item) {
-          this.closeItem(otherItem);
-        }
+        if (otherItem !== item) this.closeItem(otherItem);
       });
     }
 
@@ -63,48 +44,24 @@ class Accordion {
     } else {
       this.openItem(item);
     }
-
-    if (this.config.saveState) {
-      this.saveState();
-    }
   }
 
   openItem(item) {
     const header = item.querySelector("[fl-accordion-header]");
     const content = item.querySelector("[fl-accordion-content]");
 
-    this.triggerEvent("beforeOpen", item);
-
     header.setAttribute("aria-expanded", "true");
     content.style.maxHeight = content.scrollHeight + "px";
     content.classList.add("active");
-
-    if (this.config.enableAnimation) {
-      setTimeout(() => {
-        this.triggerEvent("afterOpen", item);
-      }, this.config.animationDuration);
-    } else {
-      this.triggerEvent("afterOpen", item);
-    }
   }
 
   closeItem(item) {
     const header = item.querySelector("[fl-accordion-header]");
     const content = item.querySelector("[fl-accordion-content]");
 
-    this.triggerEvent("beforeClose", item);
-
     header.setAttribute("aria-expanded", "false");
     content.style.maxHeight = null;
     content.classList.remove("active");
-
-    if (this.config.enableAnimation) {
-      setTimeout(() => {
-        this.triggerEvent("afterClose", item);
-      }, this.config.animationDuration);
-    } else {
-      this.triggerEvent("afterClose", item);
-    }
   }
 
   handleKeydown(event, item) {
@@ -165,67 +122,13 @@ class Accordion {
     const lastHeader = headers[headers.length - 1];
     lastHeader.focus();
   }
-
-  handleDeepLinking() {
-    if (window.location.hash) {
-      const targetId = window.location.hash.substring(1);
-      const targetItem = this.accordion.querySelector(`#${targetId}`);
-      if (targetItem) {
-        const parentItem = targetItem.closest("[fl-accordion-item]");
-        if (parentItem) {
-          this.openItem(parentItem);
-        }
-      }
-    }
-  }
-
-  saveState() {
-    const state = Array.from(this.items).map((item) => {
-      const header = item.querySelector("[fl-accordion-header]");
-      return header.getAttribute("aria-expanded") === "true";
-    });
-    localStorage.setItem(this.accordionId, JSON.stringify(state));
-  }
-
-  restoreState() {
-    const savedState = localStorage.getItem(this.accordionId);
-    if (savedState) {
-      const state = JSON.parse(savedState);
-      this.items.forEach((item, index) => {
-        if (state[index]) {
-          this.openItem(item);
-        } else {
-          this.closeItem(item);
-        }
-      });
-    }
-  }
-
-  triggerEvent(eventName, item) {
-    const event = new CustomEvent(eventName, {
-      detail: { accordion: this, item: item },
-      bubbles: true,
-      cancelable: true,
-    });
-    this.accordion.dispatchEvent(event);
-  }
 }
 
-// Initialize all accordions on the page
-document.querySelectorAll("[fl-accordion]").forEach((accordionElement) => {
-  const config = {
-    allowMultipleOpen: accordionElement.hasAttribute(
-      "fl-accordion-allow-multiple-open"
-    ),
-    animationDuration:
-      parseInt(
-        accordionElement.getAttribute("fl-accordion-animation-duration")
-      ) || 300,
-    enableAnimation: !accordionElement.hasAttribute(
-      "fl-accordion-disable-animation"
-    ),
-    saveState: accordionElement.hasAttribute("fl-accordion-save-state"),
-    deepLinking: accordionElement.hasAttribute("fl-accordion-deep-linking"),
-  };
-  new Accordion(accordionElement, config);
+// Initialize the accordion
+document.addEventListener("DOMContentLoaded", function () {
+  const accordionElement = document.querySelector("[fl-accordion]");
+  const allowMultipleOpen = accordionElement.hasAttribute(
+    "fl-accordion-allow-multiple-open"
+  );
+  new Accordion(accordionElement, { allowMultipleOpen });
 });
