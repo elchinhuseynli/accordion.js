@@ -1,4 +1,4 @@
-# Enhanced Accordion Component Documentation
+# Enhanced Accordion Component
 
 ## Table of Contents
 
@@ -6,17 +6,22 @@
 2. [Features](#features)
 3. [Installation](#installation)
 4. [Basic Usage](#basic-usage)
-5. [Configuration Options](#configuration-options)
-6. [HTML Attributes](#html-attributes)
-7. [JavaScript API](#javascript-api)
-8. [Events](#events)
-9. [Keyboard Navigation](#keyboard-navigation)
-10. [Accessibility](#accessibility)
-11. [Browser Support](#browser-support)
-12. [Examples](#examples)
-13. [Troubleshooting](#troubleshooting)
-14. [Contributing](#contributing)
-15. [License](#license)
+5. [HTML Structure](#html-structure)
+6. [CSS](#css)
+7. [JavaScript Initialization](#javascript-initialization)
+8. [Configuration Options](#configuration-options)
+9. [HTML Attributes](#html-attributes)
+10. [JavaScript API](#javascript-api)
+11. [Events](#events)
+12. [Arrow Animation](#arrow-animation)
+13. [Content Animation](#content-animation)
+14. [Keyboard Navigation](#keyboard-navigation)
+15. [Accessibility](#accessibility)
+16. [Browser Support](#browser-support)
+17. [Examples](#examples)
+18. [Troubleshooting](#troubleshooting)
+19. [Contributing](#contributing)
+20. [License](#license)
 
 ## Introduction
 
@@ -25,6 +30,7 @@ The Enhanced Accordion Component is a lightweight, accessible, and feature-rich 
 ## Features
 
 - Smooth animations for opening and closing accordion items
+- Customizable arrow indicator animation
 - Keyboard navigation support
 - Accessibility features with proper ARIA attributes
 - Deep linking support
@@ -45,13 +51,20 @@ To use the Enhanced Accordion Component in your project, include the following f
 
 ## Basic Usage
 
-1. Add the necessary HTML structure:
+1. Add the necessary HTML structure (see [HTML Structure](#html-structure) section).
+2. Include the CSS (see [CSS](#css) section).
+3. Initialize the accordion with JavaScript (see [JavaScript Initialization](#javascript-initialization) section).
+
+## HTML Structure
 
 ```html
 <div class="accordion" fl-accordion>
   <div class="accordion-item" fl-accordion-item>
     <div class="accordion-header" fl-accordion-header>
       <h3>Section 1</h3>
+      <svg fl-accordion-arrow xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M7 10l5 5 5-5z"/>
+      </svg>
     </div>
     <div class="accordion-content" fl-accordion-content>
       <p>Content for Section 1</p>
@@ -61,7 +74,31 @@ To use the Enhanced Accordion Component in your project, include the following f
 </div>
 ```
 
-2. Initialize the accordion:
+## CSS
+
+```css
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition-property: max-height, padding, opacity;
+}
+
+.accordion-content.active {
+  max-height: 1000px; /* Adjust this value as needed */
+  opacity: 1;
+}
+
+[fl-accordion-arrow] {
+  transition: transform 0.3s ease;
+}
+
+.accordion-header[aria-expanded="true"] [fl-accordion-arrow] {
+  transform: rotate(180deg);
+}
+```
+
+## JavaScript Initialization
 
 ```javascript
 document.addEventListener('DOMContentLoaded', function() {
@@ -104,6 +141,7 @@ You can also configure the accordion using HTML attributes:
 | `fl-accordion-item` | Identifies an accordion item. |
 | `fl-accordion-header` | Identifies the clickable header of an accordion item. |
 | `fl-accordion-content` | Identifies the content area of an accordion item. |
+| `fl-accordion-arrow` | Identifies the arrow element for animation. |
 | `fl-accordion-allow-multiple-open` | Allows multiple items to be open simultaneously. |
 | `fl-accordion-animation-duration="500"` | Sets the animation duration (in ms). |
 | `fl-accordion-disable-animation` | Disables animations. |
@@ -134,6 +172,45 @@ accordionElement.addEventListener('beforeOpen', function(e) {
   console.log('Item is about to open:', e.detail.item);
 });
 ```
+
+## Arrow Animation
+
+The arrow animation is controlled by CSS. You can customize it by modifying the following CSS:
+
+```css
+[fl-accordion-arrow] {
+  transition: transform 0.3s ease;
+}
+
+.accordion-header[aria-expanded="true"] [fl-accordion-arrow] {
+  transform: rotate(180deg);
+}
+```
+
+To customize:
+1. Change the `transition` duration to adjust animation speed.
+2. Modify the `rotate(180deg)` value to change rotation amount.
+3. Use any HTML element with the `fl-accordion-arrow` attribute as the arrow indicator.
+
+## Content Animation
+
+Content animation is controlled by CSS and JavaScript:
+
+```css
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition-property: max-height, padding, opacity;
+}
+
+.accordion-content.active {
+  max-height: 1000px; /* Adjust this value as needed */
+  opacity: 1;
+}
+```
+
+The `animationDuration` configuration option sets the duration of this transition.
 
 ## Keyboard Navigation
 
