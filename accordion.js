@@ -4,6 +4,9 @@ class Accordion {
     this.config = {
       allowMultipleOpen: false,
       animationDuration: 300,
+      enableAnimation: true,
+      saveState: false,
+      deepLinking: false,
       ...config,
     };
     this.items = this.accordion.querySelectorAll("[fl-accordion-item]");
@@ -15,17 +18,32 @@ class Accordion {
       const header = item.querySelector("[fl-accordion-header]");
       const content = item.querySelector("[fl-accordion-content]");
 
-      header.id = `accordion-header-${index}`;
-      content.id = `accordion-content-${index}`;
-      header.setAttribute("aria-controls", content.id);
-      content.setAttribute("aria-labelledby", header.id);
+      const headerId = `accordion-header-${index}`;
+      const contentId = `accordion-content-${index}`;
+      header.id = headerId;
+      content.id = contentId;
+      header.setAttribute("aria-controls", contentId);
+      content.setAttribute("aria-labelledby", headerId);
 
       header.addEventListener("click", () => this.toggleItem(item));
       header.addEventListener("keydown", (e) => this.handleKeydown(e, item));
 
-      // Set tabindex to make headers focusable
       header.setAttribute("tabindex", "0");
+
+      if (this.config.enableAnimation) {
+        content.style.transition = `max-height ${this.config.animationDuration}ms ease-out, 
+                                    padding ${this.config.animationDuration}ms ease-out, 
+                                    opacity ${this.config.animationDuration}ms ease-out`;
+      }
     });
+
+    if (this.config.deepLinking) {
+      this.handleDeepLinking();
+    }
+
+    if (this.config.saveState) {
+      this.restoreState();
+    }
   }
 
   toggleItem(item) {
@@ -44,24 +62,48 @@ class Accordion {
     } else {
       this.openItem(item);
     }
+
+    if (this.config.saveState) {
+      this.saveState();
+    }
   }
 
   openItem(item) {
     const header = item.querySelector("[fl-accordion-header]");
     const content = item.querySelector("[fl-accordion-content]");
 
+    this.triggerEvent("beforeOpen", item);
+
     header.setAttribute("aria-expanded", "true");
     content.style.maxHeight = content.scrollHeight + "px";
     content.classList.add("active");
+
+    if (this.config.enableAnimation) {
+      setTimeout(() => {
+        this.triggerEvent("afterOpen", item);
+      }, this.config.animationDuration);
+    } else {
+      this.triggerEvent("afterOpen", item);
+    }
   }
 
   closeItem(item) {
     const header = item.querySelector("[fl-accordion-header]");
     const content = item.querySelector("[fl-accordion-content]");
 
+    this.triggerEvent("beforeClose", item);
+
     header.setAttribute("aria-expanded", "false");
     content.style.maxHeight = null;
     content.classList.remove("active");
+
+    if (this.config.enableAnimation) {
+      setTimeout(() => {
+        this.triggerEvent("afterClose", item);
+      }, this.config.animationDuration);
+    } else {
+      this.triggerEvent("afterClose", item);
+    }
   }
 
   handleKeydown(event, item) {
@@ -122,13 +164,68 @@ class Accordion {
     const lastHeader = headers[headers.length - 1];
     lastHeader.focus();
   }
+
+  triggerEvent(eventName, item) {
+    const event = new CustomEvent(eventName, {
+      detail: { accordion: this, item: item },
+      bubbles: true,
+      cancelable: true,
+    });
+    this.accordion.dispatchEvent(event);
+  }
+
+  handleDeepLinking() {
+    if (window.location.hash) {
+      const targetId = window.location.hash.substring(1);
+      const targetItem = this.accordion.querySelector(`#${targetId}`);
+      if (targetItem) {
+        const parentItem = targetItem.closest("[fl-accordion-item]");
+        if (parentItem) {
+          this.openItem(parentItem);
+        }
+      }
+    }
+  }
+
+  saveState() {
+    const state = Array.from(this.items).map((item) => {
+      const header = item.querySelector("[fl-accordion-header]");
+      return header.getAttribute("aria-expanded") === "true";
+    });
+    localStorage.setItem(this.accordionId, JSON.stringify(state));
+  }
+
+  restoreState() {
+    const savedState = localStorage.getItem(this.accordionId);
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      this.items.forEach((item, index) => {
+        if (state[index]) {
+          this.openItem(item);
+        } else {
+          this.closeItem(item);
+        }
+      });
+    }
+  }
 }
 
 // Initialize the accordion
 document.addEventListener("DOMContentLoaded", function () {
   const accordionElement = document.querySelector("[fl-accordion]");
-  const allowMultipleOpen = accordionElement.hasAttribute(
-    "fl-accordion-allow-multiple-open"
-  );
-  new Accordion(accordionElement, { allowMultipleOpen });
+  const config = {
+    allowMultipleOpen: accordionElement.hasAttribute(
+      "fl-accordion-allow-multiple-open"
+    ),
+    animationDuration:
+      parseInt(
+        accordionElement.getAttribute("fl-accordion-animation-duration")
+      ) || 300,
+    enableAnimation: !accordionElement.hasAttribute(
+      "fl-accordion-disable-animation"
+    ),
+    saveState: accordionElement.hasAttribute("fl-accordion-save-state"),
+    deepLinking: accordionElement.hasAttribute("fl-accordion-deep-linking"),
+  };
+  new Accordion(accordionElement, config);
 });
