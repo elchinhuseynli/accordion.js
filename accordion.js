@@ -213,25 +213,25 @@ class Accordion {
   }
 }
 
-// Initialize the accordion
-document.addEventListener("DOMContentLoaded", function () {
-  const accordionElement = document.querySelector("[fl-accordion]");
-  const config = {
-    allowMultipleOpen: accordionElement.hasAttribute(
-      "fl-accordion-allow-multiple-open"
-    ),
-    animationDuration:
-      parseInt(
-        accordionElement.getAttribute("fl-accordion-animation-duration")
-      ) || 300,
-    enableAnimation: !accordionElement.hasAttribute(
-      "fl-accordion-disable-animation"
-    ),
-    saveState: accordionElement.hasAttribute("fl-accordion-save-state"),
-    deepLinking: accordionElement.hasAttribute("fl-accordion-deep-linking"),
-    openFirstByDefault: accordionElement.hasAttribute(
-      "fl-accordion-open-first-by-default"
-    ),
-  };
-  new Accordion(accordionElement, config);
-});
+// // Initialize the accordion
+// document.addEventListener("DOMContentLoaded", function () {
+//   const accordionElement = document.querySelector("[fl-accordion]");
+//   const config = {
+//     allowMultipleOpen: accordionElement.hasAttribute(
+//       "fl-accordion-allow-multiple-open"
+//     ),
+//     animationDuration:
+//       parseInt(
+//         accordionElement.getAttribute("fl-accordion-animation-duration")
+//       ) || 300,
+//     enableAnimation: !accordionElement.hasAttribute(
+//       "fl-accordion-disable-animation"
+//     ),
+//     saveState: accordionElement.hasAttribute("fl-accordion-save-state"),
+//     deepLinking: accordionElement.hasAttribute("fl-accordion-deep-linking"),
+//     openFirstByDefault: accordionElement.hasAttribute(
+//       "fl-accordion-open-first-by-default"
+//     ),
+//   };
+//   new Accordion(accordionElement, config);
+// });
