@@ -7,6 +7,7 @@ class Accordion {
       enableAnimation: true,
       saveState: false,
       deepLinking: false,
+      openFirstByDefault: false,
       ...config,
     };
     this.items = this.accordion.querySelectorAll("[fl-accordion-item]");
@@ -43,6 +44,8 @@ class Accordion {
 
     if (this.config.saveState) {
       this.restoreState();
+    } else if (this.config.openFirstByDefault && this.items.length > 0) {
+      this.openItem(this.items[0]);
     }
   }
 
@@ -226,6 +229,9 @@ document.addEventListener("DOMContentLoaded", function () {
     ),
     saveState: accordionElement.hasAttribute("fl-accordion-save-state"),
     deepLinking: accordionElement.hasAttribute("fl-accordion-deep-linking"),
+    openFirstByDefault: accordionElement.hasAttribute(
+      "fl-accordion-open-first-by-default"
+    ),
   };
   new Accordion(accordionElement, config);
 });
